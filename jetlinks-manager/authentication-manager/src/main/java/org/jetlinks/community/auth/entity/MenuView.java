@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class MenuView extends GenericTreeSortSupportEntity<String> implements MultipleI18nSupportEntity {
+public class MenuView extends GenericTreeSortSupportEntity<String> implements MultipleI18nSupportEntity, IMenuSort  {
 
     /**
      * 在多应用集成运行时使用此字段来区分菜单属于哪个系统

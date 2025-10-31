@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 @Comment("菜单信息表")
 @EnableEntityEvent
 public class MenuEntity
-    extends GenericTreeSortSupportEntity<String> implements RecordCreationEntity, MultipleI18nSupportEntity {
+    extends GenericTreeSortSupportEntity<String> implements RecordCreationEntity, MultipleI18nSupportEntity, IMenuSort  {
 
     /**
      * 在多应用集成运行时使用此字段来区分菜单属于哪个系统

@@ -36,6 +36,7 @@ import org.hswebframework.web.crud.web.reactive.ReactiveServiceCrudController;
 import org.hswebframework.web.exception.ValidationException;
 import org.hswebframework.web.i18n.LocaleUtils;
 import org.hswebframework.web.system.authorization.defaults.service.DefaultPermissionService;
+import org.jetlinks.community.auth.entity.IMenuSort;
 import org.jetlinks.community.auth.entity.MenuEntity;
 import org.jetlinks.community.auth.entity.MenuView;
 import org.jetlinks.community.auth.service.DefaultMenuService;
@@ -50,6 +51,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 菜单管理
@@ -94,7 +97,14 @@ public class MenuController implements ReactiveServiceCrudController<MenuEntity,
             })
             .flatMapMany(defaultMenuService::query)
             .collectList()
-            .flatMapIterable(list -> TreeSupportEntity.list2tree(list, MenuEntity::setChildren));
+            .flatMapIterable(list -> {
+                Map<String, Long> ownerMinSortIndexMap = IMenuSort.getSortIndexMap(list);
+                final List<MenuEntity> views = list
+                        .stream()
+                        .sorted((o1, o2) -> IMenuSort.compareMenuViewWithOwnerMinSortIndex(o1, o2, ownerMinSortIndexMap))
+                        .collect(Collectors.toList());
+                return TreeSupportEntity.list2tree(views, MenuEntity::setChildren);
+            });
     }
 
     /**
@@ -318,7 +328,16 @@ public class MenuController implements ReactiveServiceCrudController<MenuEntity,
     protected static Flux<MenuView> listToTree(Flux<MenuView> flux) {
         return flux
             .collectList()
-            .flatMapIterable(list -> TreeUtils.list2tree(list, MenuView::getId, MenuView::getParentId, MenuView::setChildren));
+            .flatMapIterable(list -> {
+                Map<String, Long> ownerMinSortIndexMap = IMenuSort.getSortIndexMap(list);
+                final List<MenuView> views = list
+                        .stream()
+                        .sorted((o1, o2) -> IMenuSort.compareMenuViewWithOwnerMinSortIndex(o1, o2, ownerMinSortIndexMap))
+                        .collect(Collectors.toList());
+                return TreeUtils.list2tree(views, MenuView::getId,
+                        MenuView::getParentId,
+                        MenuView::setChildren);
+            });
     }
 
     @Getter
